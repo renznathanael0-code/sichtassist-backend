@@ -23,7 +23,13 @@ app.post('/api/analyze', async (req, res) => {
         let prompt = "Beschreibe kurz was auf dem Bild zu sehen ist.";
         if (mode === 'traffic') prompt = "Ist hier eine Ampel? Welche Farbe zeigt sie? Ist der Weg frei? Antworte in 1-2 kurzen Sätzen für eine sehbehinderte Person.";
         if (mode === 'obstacle') prompt = "Welche Hindernisse, Stufen, Schwellen oder Gefahren befinden sich direkt vor mir? Antworte kurz und präzise.";
-        if (mode === 'text') prompt = "Lies sämtlichen sichtbaren Text auf dem Bild laut und deutlich vor.";
+        if (mode === 'text') prompt = `Lies den Text auf dem Bild so vor, dass er perfekt für eine Sprachausgabe (Text-to-Speech) geeignet ist. 
+Halte dich an folgende Regeln:
+1. Ersetze Symbole wie '//' oder '/' durch Wörter wie 'für' oder lass sie komplett weg.
+2. Schreibe Preisangaben wie '7 €' als '7 Euro' aus.
+3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #, keine Bindestriche -).
+4. Lies ausschließlich den Inhalt der Karte vor und ignoriere Ränder oder Browser-Elemente.
+5. Gib das Ergebnis als gut verständlichen, flüssigen Text aus.`;
         if (mode === 'color') prompt = "Welche Hauptfarben haben die Objekte im Bild?";
 
         const response = await ai.models.generateContent({
