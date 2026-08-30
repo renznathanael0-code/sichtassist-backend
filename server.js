@@ -27,7 +27,7 @@ app.post('/api/analyze', async (req, res) => {
         if (mode === 'color') prompt = "Welche Hauptfarben haben die Objekte im Bild?";
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3.5-flash',
             contents: [
                 {
                     role: 'user',
