@@ -65,10 +65,15 @@ Halte dich an folgende Regeln:
         const textResult = response.text;
         res.json({ result: textResult });
 
-    } catch (error) {
-        console.error("Backend Error:", error);
-        res.status(500).json({ error: 'Fehler bei der Bildanalyse' });
+        } catch (error) {
+        console.error("Backend Error Details:", error);
+        // Gibt den genauen Fehlergrund an die App zurück
+        res.status(500).json({ 
+            error: 'Fehler bei der Bildanalyse', 
+            details: error.message || 'Unbekannter Fehler' 
+        });
     }
+
 });
 
 const PORT = process.env.PORT || 3000;
