@@ -10,7 +10,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/api/analyze', async (req, res) => {
     try {
-        const { imageBase64, mode } = req.body;
+        const { imageBase64, mode, target } = req.body;
 
         if (!imageBase64) {
             return res.status(400).json({ error: 'Kein Bild übergeben' });
@@ -40,6 +40,15 @@ Halte dich an folgende Regeln:
 
         if (mode === 'currency') {
             prompt = "Identifiziere das im Bild gezeigte Bargeld (Euro-Scheine oder Münzen). Nenne den Gesamtwert oder die Werte der einzelnen Scheine und Münzen präzise auf Deutsch. Verwende keine Markdown-Sonderzeichen. Falls kein Geld zu sehen ist, antworte: 'Kein Bargeld erkannt.'";
+        }
+
+        if (mode === 'search') {
+            const searchTarget = target || "der gesuchte Gegenstand";
+            prompt = `Prüfe genau, ob das Objekt "${searchTarget}" auf dem Bild zu sehen ist.
+Halte dich an folgende Regeln:
+1. Falls das Objekt zu sehen ist: Antworte kurz und direkt, wo es liegt (z.B. "Ja, das iPad liegt links auf dem Tisch.").
+2. Falls das Objekt NICHT zu sehen ist: Antworte exakt mit dem Satz: "${searchTarget} nicht im Bild erkannt."
+3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #).`;
         }
 
         const response = await ai.models.generateContent({
