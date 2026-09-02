@@ -43,12 +43,13 @@ Halte dich an folgende Regeln:
         }
 
         if (mode === 'search') {
-            const searchTarget = target || "der gesuchte Gegenstand";
-            prompt = `Prüfe genau, ob das Objekt "${searchTarget}" auf dem Bild zu sehen ist.
-Halte dich an folgende Regeln:
-1. Falls das Objekt zu sehen ist: Antworte kurz und direkt, wo es liegt (z.B. "Ja, das iPad liegt links auf dem Tisch.").
-2. Falls das Objekt NICHT zu sehen ist: Antworte exakt mit dem Satz: "${searchTarget} nicht im Bild erkannt."
-3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #).`;
+            const searchTarget = target || "Gegenstand";
+            prompt = `Scanne das Bild nach dem Objekt: "${searchTarget}".
+Halte dich strikt an diese Regeln:
+1. Falls das Objekt "${searchTarget}" (oder ein sehr ähnlicher Gegenstand) im Bild zu sehen ist: Antworte direkt und kurz, wo es sich befindet (z. B. "Ja, das iPad liegt mittig auf dem Tisch.").
+2. Falls das Objekt NICHT zu sehen ist oder das Bild zu unscharf ist: Antworte exakt mit dem Satz: "${searchTarget} ist im Bild nicht zu erkennen."
+3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #).
+4. Antworte in nur einem einzigen Satz auf Deutsch.`;
         }
 
         const response = await ai.models.generateContent({
