@@ -9,6 +9,13 @@ app.use(express.json({ limit: '10mb' }));
 // Initialisierung
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// Globaler Hinweis für schlechte Belichtung
+const DARKNESS_RULE = `
+WICHTIGE SONDERREGEL FÜR ALLE MODI:
+Falls das Bild zu dunkel, extrem schattig oder aufgrund von schlechten Lichtverhältnissen völlig unleserlich/unerkenntlich ist, ignoriere alle anderen Anweisungen und antworte AUSSCHLIESSLICH mit dem exakten Wort:
+[RETRY_WITH_TORCH]
+`;
+
 app.post('/api/analyze', async (req, res) => {
     try {
         const { imageBase64, mode, target } = req.body;
@@ -19,7 +26,7 @@ app.post('/api/analyze', async (req, res) => {
 
         const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-        let prompt = "Beschreibe kurz was auf dem Bild zu sehen ist. Verwende absolut keine Markdown-Zeichen wie Sterne oder Rautenzeichen.";
+        let prompt = `Beschreibe kurz was auf dem Bild zu sehen ist. Verwende absolut keine Markdown-Zeichen wie Sterne oder Rautenzeichen. ${DARKNESS_RULE}`;
         
         if (mode === 'text') {
             prompt = `Lies den Text auf dem Bild so vor, dass er perfekt für eine Sprachausgabe (Text-to-Speech) geeignet ist. 
@@ -28,19 +35,20 @@ Halte dich an folgende Regeln:
 2. Schreibe Preisangaben wie '7 €' als '7 Euro' aus.
 3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #, keine Bindestriche -).
 4. Lies ausschließlich den Inhalt des Dokuments vor und ignoriere Ränder oder Browser-Elemente.
-5. Gib das Ergebnis als gut verständlichen, flüssigen Text aus auf Deutsch.`;
+5. Gib das Ergebnis als gut verständlichen, flüssigen Text aus auf Deutsch.
+${DARKNESS_RULE}`;
         }
 
         if (mode === 'color') {
-            prompt = "Welche Hauptfarben haben die zentralen Objekte im Bild? Antworte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #).";
+            prompt = `Welche Hauptfarben haben die zentralen Objekte im Bild? Antworte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #). ${DARKNESS_RULE}`;
         }
 
         if (mode === 'object') {
-            prompt = "Welche Gegenstände oder Objekte sind im Bild zu sehen? Beschreibe die wichtigsten Objekte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #).";
+            prompt = `Welche Gegenstände oder Objekte sind im Bild zu sehen? Beschreibe die wichtigsten Objekte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #). ${DARKNESS_RULE}`;
         }
 
         if (mode === 'currency') {
-            prompt = "Identifiziere das im Bild gezeigte Bargeld (Euro-Scheine oder Münzen). Nenne den Gesamtwert oder die Werte der einzelnen Scheine und Münzen präzise auf Deutsch. Verwende keine Markdown-Sonderzeichen. Falls kein Geld zu sehen ist, antworte: 'Kein Bargeld erkannt.'";
+            prompt = `Identifiziere das im Bild gezeigte Bargeld (Euro-Scheine oder Münzen). Nenne den Gesamtwert oder die Werte der einzelnen Scheine und Münzen präzise auf Deutsch. Verwende keine Markdown-Sonderzeichen. Falls kein Geld zu sehen ist, antworte: 'Kein Bargeld erkannt.' ${DARKNESS_RULE}`;
         }
 
         if (mode === 'search') {
@@ -48,9 +56,10 @@ Halte dich an folgende Regeln:
             prompt = `Scanne das Bild nach dem Objekt: "${searchTarget}".
 Halte dich strikt an diese Regeln:
 1. Falls das Objekt "${searchTarget}" (oder ein sehr ähnlicher Gegenstand) im Bild zu sehen ist: Antworte direkt und kurz, wo es sich befindet (z. B. "Ja, das iPad liegt mittig auf dem Tisch.").
-2. Falls das Objekt NICHT zu sehen ist oder das Bild zu unscharf ist: Antworte exakt mit dem Satz: "${searchTarget} ist im Bild nicht zu erkennen."
+2. Falls das Objekt NICHT zu sehen ist: Antworte exakt mit dem Satz: "${searchTarget} ist im Bild nicht zu erkennen."
 3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #).
-4. Antworte in nur einem einzigen Satz auf Deutsch.`;
+4. Antworte in nur einem einzigen Satz auf Deutsch.
+${DARKNESS_RULE}`;
         }
 
         // Offizieller Aufruf für Bildanalyse
