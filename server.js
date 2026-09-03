@@ -6,6 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
+// Initialisierung
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/api/analyze', async (req, res) => {
@@ -52,8 +53,9 @@ Halte dich strikt an diese Regeln:
 4. Antworte in nur einem einzigen Satz auf Deutsch.`;
         }
 
+        // Offizieller Aufruf für Bildanalyse
         const response = await ai.models.generateContent({
-            model: 'gemini-3.6-flash',
+            model: 'gemini-1.5-flash',
             contents: [
                 {
                     role: 'user',
