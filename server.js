@@ -81,7 +81,7 @@ Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeic
 
         // Offizieller Aufruf für Bildanalyse
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3.6-flash',
             contents: [
                 {
                     role: 'user',
