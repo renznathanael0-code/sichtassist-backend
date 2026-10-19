@@ -39,19 +39,29 @@ Halte dich an folgende Regeln:
 ${DARKNESS_RULE}`;
         }
 
-        if (mode === 'color') {
+        else if (mode === 'color') {
             prompt = `Welche Hauptfarben haben die zentralen Objekte im Bild? Antworte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #). ${DARKNESS_RULE}`;
         }
 
-        if (mode === 'object') {
+        else if (mode === 'object') {
             prompt = `Welche Gegenstände oder Objekte sind im Bild zu sehen? Beschreibe die wichtigsten Objekte kurz und präzise in 1 bis 2 Sätzen auf Deutsch ohne Markdown-Sonderzeichen (keine Sterne *, keine Rautenzeichen #). ${DARKNESS_RULE}`;
         }
 
-        if (mode === 'currency') {
+        else if (mode === 'currency') {
             prompt = `Identifiziere das im Bild gezeigte Bargeld (Euro-Scheine oder Münzen). Nenne den Gesamtwert oder die Werte der einzelnen Scheine und Münzen präzise auf Deutsch. Verwende keine Markdown-Sonderzeichen. Falls kein Geld zu sehen ist, antworte: 'Kein Bargeld erkannt.' ${DARKNESS_RULE}`;
         }
 
-        if (mode === 'search') {
+        else if (mode === 'count') {
+            const countTarget = target || "Objekte";
+            prompt = `Zähle wie oft das gesuchte Objekt "${countTarget}" auf dem Bild zu sehen ist.
+Halte dich an folgende Regeln:
+1. Nenne die genaue Anzahl in einem kurzen Satz auf Deutsch (z. B. "Auf dem Bild sind 3 Stifte zu sehen.").
+2. Falls keines vorhanden ist, sage klar, dass keins gefunden wurde.
+3. Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #).
+${DARKNESS_RULE}`;
+        }
+
+        else if (mode === 'search') {
             const searchTarget = target || "Gegenstand";
             prompt = `Scanne das Bild nach dem Objekt: "${searchTarget}".
 Halte dich strikt an diese Regeln:
@@ -62,9 +72,16 @@ Halte dich strikt an diese Regeln:
 ${DARKNESS_RULE}`;
         }
 
+        // Unterstützung für kombinierte Modi (z.B. text+color)
+        else if (mode && mode.includes('+')) {
+            const subModes = mode.split('+');
+            prompt = `Führe die folgenden Analysen gleichzeitig für das Bild aus und fasse das Ergebnis kurz und präzise auf Deutsch zusammen: ${subModes.join(', ')}. 
+Verwende absolut keine Markdown-Formatierungen (keine Sterne *, keine Rautenzeichen #). ${DARKNESS_RULE}`;
+        }
+
         // Offizieller Aufruf für Bildanalyse
         const response = await ai.models.generateContent({
-            model: 'gemini-3.6-flash',
+            model: 'gemini-2.5-flash',
             contents: [
                 {
                     role: 'user',
